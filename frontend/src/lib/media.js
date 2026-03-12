@@ -6,7 +6,9 @@ const COVER_FALLBACKS = [
 ];
 
 // const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
-const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-sdzh.onrender.com/api').replace(/\/api\/?$/, '');
+// const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-sdzh.onrender.com/api').replace(/\/api\/?$/, '');
+const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'https://firstprojects-tiz9.onrender.com/api').replace(/\/api\/?$/, '');
+
 
 function stableIndex(seed, length) {
   const input = String(seed || '');

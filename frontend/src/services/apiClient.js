@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 // const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-sdzh.onrender.com/api';
+// const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-sdzh.onrender.com/api';
+const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://firstprojects-tiz9.onrender.com/api';
 
 let accessToken = null;
 
