@@ -1,10 +1,8 @@
 import axios from 'axios';
-
-// const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-// const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend-sdzh.onrender.com/api';
-const BACKEND_API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://firstprojects-tiz9.onrender.com/api';
+import { appConfig } from '@/lib/config/appConfig';
 
 let accessToken = null;
+const RETRYABLE_METHODS = new Set(['get', 'head', 'options']);
 
 export function setAccessToken(token) {
   accessToken = token || null;
@@ -33,7 +31,24 @@ function applyInterceptors(client) {
 
   client.interceptors.response.use(
     (response) => response,
-    (error) => {
+    async (error) => {
+      const config = error?.config || {};
+      const method = String(config.method || 'get').toLowerCase();
+      const retryCount = config.__retryCount || 0;
+      const shouldRetry =
+        RETRYABLE_METHODS.has(method) &&
+        retryCount < 1 &&
+        (!error?.response ||
+          error?.code === 'ECONNABORTED' ||
+          error?.response?.status === 429 ||
+          error?.response?.status >= 500);
+
+      if (shouldRetry) {
+        config.__retryCount = retryCount + 1;
+        await new Promise((resolve) => setTimeout(resolve, 250));
+        return client(config);
+      }
+
       if (error?.response?.status === 401) {
         setAccessToken(null);
       }
@@ -45,13 +60,13 @@ function applyInterceptors(client) {
 export const appApiClient = axios.create({
   baseURL: '/api',
   withCredentials: true,
-  timeout: 15000,
+  timeout: appConfig.requestTimeoutMs,
 });
 
 export const backendApiClient = axios.create({
-  baseURL: BACKEND_API_URL,
+  baseURL: appConfig.publicApiUrl,
   withCredentials: true,
-  timeout: 15000,
+  timeout: appConfig.requestTimeoutMs,
 });
 
 applyInterceptors(appApiClient);

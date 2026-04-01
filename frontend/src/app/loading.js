@@ -1,11 +1,5 @@
-import Skeleton from '@/components/ui/Skeleton';
+import BlogFeedSkeleton from '@/components/post/BlogFeedSkeleton';
 
 export default function Loading() {
-  return (
-    <div className="space-y-4">
-      <Skeleton className="h-9 w-1/3" />
-      <Skeleton className="h-40 w-full" />
-      <Skeleton className="h-40 w-full" />
-    </div>
-  );
+  return <BlogFeedSkeleton />;
 }

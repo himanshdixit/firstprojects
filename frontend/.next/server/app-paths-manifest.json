@@ -1,5 +1,12 @@
 {
   "/page": "app/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/api/contacts/route": "app/api/contacts/route.js",
+  "/admin/page": "app/admin/page.js",
   "/api/auth/me/route": "app/api/auth/me/route.js",
-  "/api/posts/route": "app/api/posts/route.js"
+  "/api/admin/users/route": "app/api/admin/users/route.js",
+  "/api/admin/posts/route": "app/api/admin/posts/route.js",
+  "/api/admin/contacts/route": "app/api/admin/contacts/route.js",
+  "/api/admin/analytics/route": "app/api/admin/analytics/route.js",
+  "/api/admin/comments/route": "app/api/admin/comments/route.js"
 }

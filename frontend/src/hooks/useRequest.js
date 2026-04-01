@@ -1,16 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function useRequest(loader, deps = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const result = await loader();
+      setData(result);
+    } catch (err) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  }, deps); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     let active = true;
 
-    async function load() {
+    async function run() {
       setLoading(true);
       setError('');
       try {
@@ -29,7 +42,7 @@ export default function useRequest(loader, deps = []) {
       }
     }
 
-    load();
+    run();
 
     return () => {
       active = false;
@@ -37,5 +50,5 @@ export default function useRequest(loader, deps = []) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 
-  return { data, loading, error, setData };
+  return { data, loading, error, setData, refetch: load };
 }

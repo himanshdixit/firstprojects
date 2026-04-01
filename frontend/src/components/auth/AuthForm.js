@@ -4,18 +4,22 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import Image from 'next/image';
+import Link from 'next/link';
 import { loginSchema, registerSchema } from '@/validators/forms';
 import Card from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Alert from '@/components/ui/Alert';
 import useAuth from '@/hooks/useAuth';
+import useToast from '@/hooks/useToast';
 
 export default function AuthForm({ mode = 'login' }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState('');
   const { login, register: signup } = useAuth();
+  const toast = useToast();
 
   const isRegister = mode === 'register';
   const [avatarFile, setAvatarFile] = useState(null);
@@ -63,14 +67,17 @@ export default function AuthForm({ mode = 'login' }) {
 
       if (isRegister) {
         await signup(payload);
+        toast.success('Account created', 'Your profile is ready and you can start publishing.');
       } else {
         await login(payload);
+        toast.success('Welcome back', 'You are now signed in.');
       }
 
       const next = searchParams.get('next') || '/';
       router.push(next);
     } catch (err) {
       setError(err.message || 'Authentication failed');
+      toast.error('Authentication failed', err.message || 'Please check your details and try again.');
     }
   };
 
@@ -86,9 +93,19 @@ export default function AuthForm({ mode = 'login' }) {
   }, [avatarFile]);
 
   return (
-    <Card className="mx-auto max-w-md">
-      <h1 className="text-2xl font-semibold">{isRegister ? 'Create account' : 'Welcome back'}</h1>
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+    <Card className="mx-auto max-w-xl border border-amber-100/70 bg-[rgba(255,252,247,0.9)] p-6 shadow-[0_24px_64px_rgba(18,12,7,0.1)] dark:border-amber-300/10 dark:bg-[rgba(12,10,8,0.92)] sm:p-7" hover={false}>
+      <div className="flex items-center gap-3">
+        <span className="relative h-12 w-12 overflow-hidden rounded-2xl">
+          <Image src="/draftsphere-logo.png" alt="DraftSphere logo" fill sizes="48px" className="object-contain" />
+        </span>
+        <div>
+          <p className="font-display text-[1.95rem] leading-none text-slate-900 dark:text-white">DraftSphere</p>
+          <p className="text-xs uppercase tracking-[0.22em] text-[var(--brand)]">Private Editorial Access</p>
+        </div>
+      </div>
+
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight">{isRegister ? 'Create account' : 'Welcome back'}</h1>
+      <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
         {isRegister ? 'Register to start writing posts.' : 'Log in to continue.'}
       </p>
 
@@ -133,9 +150,24 @@ export default function AuthForm({ mode = 'login' }) {
 
         {error ? <Alert title="Request failed" message={error} /> : null}
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? 'Please wait...' : isRegister ? 'Register' : 'Login'}
+        <Button
+          type="submit"
+          className="w-full"
+          loading={isSubmitting}
+          loadingLabel={isRegister ? 'Creating account' : 'Signing in'}
+        >
+          {isRegister ? 'Register' : 'Login'}
         </Button>
+
+        <p className="text-center text-sm text-slate-500 dark:text-slate-400">
+          {isRegister ? 'Already have an account?' : "Don't have an account?"}{' '}
+          <Link
+            href={isRegister ? '/login' : '/register'}
+            className="font-semibold text-amber-700 transition-colors hover:text-amber-800 dark:text-amber-300 dark:hover:text-amber-200"
+          >
+            {isRegister ? 'Login' : 'Create one'}
+          </Link>
+        </p>
       </form>
     </Card>
   );

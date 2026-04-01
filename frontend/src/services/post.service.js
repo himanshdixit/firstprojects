@@ -31,6 +31,87 @@ function clearPostCaches() {
   postDetailCache.clear();
 }
 
+function isSamePost(left, right) {
+  if (!left || !right) return false;
+  const leftId = String(left._id || '');
+  const rightId = String(right._id || '');
+  const leftSlug = String(left.slug || '');
+  const rightSlug = String(right.slug || '');
+
+  return (leftId && rightId && leftId === rightId) || (leftSlug && rightSlug && leftSlug === rightSlug);
+}
+
+function mergePostIntoListResponse(response, updatedPost) {
+  const items = response?.data?.items;
+  if (!Array.isArray(items) || !updatedPost) {
+    return response;
+  }
+
+  let changed = false;
+  const nextItems = items.map((item) => {
+    if (!isSamePost(item, updatedPost)) {
+      return item;
+    }
+    changed = true;
+    return { ...item, ...updatedPost };
+  });
+
+  if (!changed) {
+    return response;
+  }
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      items: nextItems,
+    },
+  };
+}
+
+function mergePostIntoDetailResponse(response, updatedPost) {
+  const existing = response?.data?.post;
+  if (!existing || !updatedPost || !isSamePost(existing, updatedPost)) {
+    return response;
+  }
+
+  return {
+    ...response,
+    data: {
+      ...response.data,
+      post: {
+        ...existing,
+        ...updatedPost,
+      },
+    },
+  };
+}
+
+function mergeUpdatedPostIntoCaches(updatedPost) {
+  if (!updatedPost?._id) {
+    return;
+  }
+
+  for (const [key, cached] of postListCache.entries()) {
+    const nextValue = mergePostIntoListResponse(cached.value, updatedPost);
+    if (nextValue !== cached.value) {
+      postListCache.set(key, { ...cached, value: nextValue });
+    }
+  }
+
+  for (const [key, cached] of postDetailCache.entries()) {
+    const cachedPost = cached?.value?.data?.post;
+    if (
+      isSamePost(cachedPost, updatedPost) ||
+      key === String(updatedPost._id) ||
+      key === String(updatedPost.slug || '')
+    ) {
+      const nextValue = mergePostIntoDetailResponse(cached.value, updatedPost);
+      postDetailCache.set(key, { ...cached, value: nextValue });
+    }
+  }
+}
+
 async function getOrCreateInflight(key, loader) {
   const existing = inflightRequests.get(key);
   if (existing) return existing;
@@ -74,6 +155,20 @@ export async function getPostById(id) {
   });
 
   setCached(postDetailCache, key, data);
+  return data;
+}
+
+export async function togglePostLike(id) {
+  const { data } = await appApiClient.patch(`/posts/${id}/like`);
+  const post = data?.data?.post;
+  mergeUpdatedPostIntoCaches(post);
+  return data;
+}
+
+export async function togglePostBookmark(id) {
+  const { data } = await appApiClient.patch(`/posts/${id}/bookmark`);
+  const post = data?.data?.post;
+  mergeUpdatedPostIntoCaches(post);
   return data;
 }
 

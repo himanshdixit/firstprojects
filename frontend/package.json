@@ -1,5 +1,5 @@
 {
-  "name": "codex-blogging-frontend",
+  "name": "draftsphere-frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -13,6 +13,11 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@hookform/resolvers": "^3.9.0",
+    "@tiptap/extension-link": "^3.21.0",
+    "@tiptap/extension-placeholder": "^3.21.0",
+    "@tiptap/extension-underline": "^3.21.0",
+    "@tiptap/react": "^3.21.0",
+    "@tiptap/starter-kit": "^3.21.0",
     "axios": "^1.8.4",
     "clsx": "^2.1.1",
     "framer-motion": "^11.18.2",

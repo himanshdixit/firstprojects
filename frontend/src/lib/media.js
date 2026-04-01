@@ -1,24 +1,7 @@
-const COVER_FALLBACKS = [
-  'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1484417894907-623942c8ee29?auto=format&fit=crop&w=1400&q=80',
-  'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=1400&q=80',
-];
+import { getBackendOrigin } from '@/lib/config/appConfig';
+import { getCuratedPostImage, HERO_SLIDES } from '@/lib/siteImages';
 
-// const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/api\/?$/, '');
-// const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'https://backend-sdzh.onrender.com/api').replace(/\/api\/?$/, '');
-const BACKEND_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || 'https://firstprojects-tiz9.onrender.com/api').replace(/\/api\/?$/, '');
-
-
-function stableIndex(seed, length) {
-  const input = String(seed || '');
-  let hash = 0;
-  for (let i = 0; i < input.length; i += 1) {
-    hash = (hash << 5) - hash + input.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash) % length;
-}
+const BACKEND_ORIGIN = getBackendOrigin();
 
 export function getPostCover(post) {
   if (post?.coverImage) {
@@ -28,8 +11,11 @@ export function getPostCover(post) {
     }
     return normalizeMediaUrl(coverValue);
   }
-  const idx = stableIndex(post?._id || post?.slug || post?.title, COVER_FALLBACKS.length);
-  return COVER_FALLBACKS[idx];
+  return getCuratedPostImage(post);
+}
+
+export function getPostCoverFallback(post) {
+  return getCuratedPostImage(post);
 }
 
 export function getAvatar(user) {
@@ -40,12 +26,20 @@ export function getAvatar(user) {
     }
     return normalizeMediaUrl(avatarValue);
   }
-  const name = encodeURIComponent(user?.name || 'User');
-  return `https://ui-avatars.com/api/?name=${name}&background=0f766e&color=fff&size=128`;
+  return getAvatarFallback(user);
 }
 
-export const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?auto=format&fit=crop&w=1800&q=80';
+export function getAvatarFallback(user) {
+  const name = encodeURIComponent(user?.name || 'User');
+  return `https://ui-avatars.com/api/?name=${name}&background=120d08&color=d6b57e&size=128`;
+}
+
+export const HERO_IMAGE = HERO_SLIDES[0]?.image || '';
+
+export function isBackendUploadUrl(url) {
+  const value = String(url || '');
+  return value.includes('/uploads/') || value.startsWith(BACKEND_ORIGIN);
+}
 
 function normalizeMediaUrl(url) {
   if (!url || typeof url !== 'string') return '';

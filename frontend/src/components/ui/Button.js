@@ -1,34 +1,68 @@
 'use client';
 
 import clsx from 'clsx';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
+import { getButtonMotion } from '@/lib/motion';
+import Loader from './Loader';
+import {
+  buttonSizeClasses,
+  buttonVariantClasses,
+  uiFocusRingClass,
+} from './styles';
 
 export default function Button({
   children,
   className,
   variant = 'primary',
-  type = 'button',
+  size = 'md',
+  leftIcon,
+  rightIcon,
+  loading = false,
+  loadingLabel = 'Loading',
+  fullWidth = false,
+  iconOnly = false,
+  as: Component = motion.button,
+  type,
+  disabled = false,
   ...props
 }) {
+  const prefersReducedMotion = useReducedMotion();
+  const motionProps = getButtonMotion(prefersReducedMotion);
+  const isMotionButton = Component === motion.button;
+  const isNativeButton = isMotionButton || Component === 'button';
+  const isDisabled = disabled || loading;
+  const componentProps = {
+    ...props,
+    ...(isNativeButton ? { type: type || 'button', disabled: isDisabled } : {}),
+    ...(!isNativeButton && isDisabled ? { 'aria-disabled': true } : {}),
+  };
+
   return (
-    <motion.button
-      whileHover={{ y: -1, scale: 1.01 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ type: 'spring', stiffness: 420, damping: 26 }}
-      type={type}
+    <Component
+      {...(isMotionButton ? motionProps : {})}
+      {...componentProps}
+      aria-busy={loading || undefined}
       className={clsx(
-        'inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60',
-        variant === 'primary' &&
-          'bg-emerald-600 text-white hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-400',
-        variant === 'secondary' &&
-          'border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800',
-        variant === 'danger' &&
-          'bg-rose-600 text-white hover:bg-rose-700',
+        'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-[transform,box-shadow,background-color,border-color,color,opacity] duration-200 ease-out will-change-transform disabled:cursor-not-allowed disabled:opacity-60',
+        uiFocusRingClass,
+        buttonSizeClasses[size] || buttonSizeClasses.md,
+        iconOnly && size !== 'icon' && 'aspect-square px-0',
+        fullWidth && 'w-full',
+        buttonVariantClasses[variant] || buttonVariantClasses.primary,
         className
       )}
-      {...props}
     >
+      {loading ? (
+        <Loader
+          inline
+          size={size === 'lg' || size === 'xl' ? 'sm' : 'xs'}
+          variant={variant === 'primary' || variant === 'danger' ? 'inverse' : 'brand'}
+          label={loadingLabel}
+        />
+      ) : null}
+      {!loading && leftIcon ? <span className="shrink-0">{leftIcon}</span> : null}
       {children}
-    </motion.button>
+      {!loading && rightIcon ? <span className="shrink-0">{rightIcon}</span> : null}
+    </Component>
   );
 }

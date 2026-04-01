@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { backendRequest, authHeadersFromToken } from '@/lib/serverApi';
-
-const TOKEN_COOKIE = 'auth_token';
+import { getRequestAuthToken } from '@/lib/auth/requestAuth';
 
 export async function GET(request) {
-  const token = cookies().get(TOKEN_COOKIE)?.value;
+  const token = getRequestAuthToken(request);
   if (!token) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }

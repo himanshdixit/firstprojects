@@ -1,21 +1,72 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import clsx from 'clsx';
+import {
+  fieldSizeClasses,
+  uiErrorClass,
+  uiFieldClass,
+  uiHelpClass,
+  uiLabelClass,
+  uiLabelHintClass,
+} from './styles';
 
-const TextArea = forwardRef(function TextArea({ label, error, className, ...props }, ref) {
+const TextArea = forwardRef(function TextArea(
+  {
+    label,
+    helperText,
+    error,
+    className,
+    containerClassName,
+    labelClassName,
+    labelHint,
+    labelAction,
+    size = 'md',
+    resize = 'vertical',
+    id,
+    ...props
+  },
+  ref
+) {
+  const generatedId = useId();
+  const resolvedId = id || generatedId;
+
   return (
-    <label className="block space-y-1.5">
-      {label ? <span className="text-sm font-medium">{label}</span> : null}
+    <div className={clsx('block space-y-1.5', containerClassName)}>
+      {label || labelAction || labelHint ? (
+        <div className="flex items-center justify-between gap-3">
+          {label ? (
+            <label htmlFor={resolvedId} className={clsx(uiLabelClass, labelClassName)}>
+              {label}
+            </label>
+          ) : (
+            <span />
+          )}
+          <div className="flex items-center gap-2">
+            {labelHint ? <span className={uiLabelHintClass}>{labelHint}</span> : null}
+            {labelAction}
+          </div>
+        </div>
+      ) : null}
+
       <textarea
+        id={resolvedId}
         ref={ref}
         className={clsx(
-          'w-full rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm outline-none ring-emerald-500 transition focus:ring-2 dark:border-slate-700 dark:bg-slate-900',
-          error && 'border-rose-500 ring-rose-500 focus:ring-2',
+          uiFieldClass,
+          fieldSizeClasses[size] || fieldSizeClasses.md,
+          'min-h-[120px]',
+          resize === 'none' && 'resize-none',
+          resize === 'both' && 'resize',
+          resize === 'vertical' && 'resize-y',
+          error &&
+            'border-rose-500 ring-2 ring-rose-400/50 focus:border-rose-500 focus:ring-rose-400/50',
           className
         )}
         {...props}
       />
-      {error ? <p className="text-xs text-rose-500">{error}</p> : null}
-    </label>
+
+      {error ? <p className={uiErrorClass}>{error}</p> : null}
+      {!error && helperText ? <p className={uiHelpClass}>{helperText}</p> : null}
+    </div>
   );
 });
 

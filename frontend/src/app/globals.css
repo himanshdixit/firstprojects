@@ -4,27 +4,141 @@
 
 :root {
   color-scheme: light;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --page-bg: #f4efe6;
+  --page-ink: #120e09;
+  --surface: rgba(255, 250, 244, 0.84);
+  --surface-strong: rgba(255, 252, 247, 0.94);
+  --surface-border: rgba(137, 104, 52, 0.18);
+  --muted-ink: #6f6351;
+  --brand: #b79257;
+  --brand-strong: #8f6b33;
 }
 
 .dark {
   color-scheme: dark;
+  --page-bg: #060505;
+  --page-ink: #f7f0e3;
+  --surface: rgba(17, 14, 11, 0.82);
+  --surface-strong: rgba(20, 17, 13, 0.94);
+  --surface-border: rgba(214, 183, 124, 0.16);
+  --muted-ink: #b6a58a;
+  --brand: #d2b27a;
+  --brand-strong: #e2c996;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 antialiased transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100;
-  background-image: radial-gradient(circle at 0% 0%, rgba(16, 185, 129, 0.08), transparent 28%), radial-gradient(circle at 100% 0%, rgba(14, 165, 233, 0.08), transparent 30%);
+  font-family: var(--font-sans);
+  color: var(--page-ink);
+  @apply min-h-screen antialiased transition-colors duration-300;
+  background:
+    radial-gradient(circle at top left, rgba(183, 146, 87, 0.18), transparent 24%),
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.4), transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.5), transparent 26%),
+    var(--page-bg);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.035em;
+}
+
+.font-display {
+  font-family: var(--font-serif);
+  letter-spacing: -0.03em;
+}
+
+a,
+button,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .container-shell {
-  @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
 }
 
 .card-surface {
-  @apply rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 247, 0.92), rgba(251, 246, 238, 0.78)),
+    var(--surface);
+  border: 1px solid rgba(183, 146, 87, 0.16);
+  box-shadow:
+    0 24px 56px rgba(17, 12, 7, 0.08),
+    0 10px 24px rgba(17, 12, 7, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  @apply rounded-[28px];
+}
+
+.card-elevated {
+  background:
+    radial-gradient(circle at top left, rgba(214, 181, 126, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(255, 253, 249, 0.97), rgba(248, 241, 231, 0.9)),
+    var(--surface-strong);
+  border: 1px solid rgba(183, 146, 87, 0.18);
+  box-shadow:
+    0 34px 86px rgba(16, 10, 6, 0.16),
+    0 14px 34px rgba(16, 10, 6, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(24px);
+  @apply rounded-[32px];
+}
+
+.dark .card-surface {
+  background:
+    linear-gradient(180deg, rgba(20, 16, 12, 0.92), rgba(12, 10, 8, 0.84)),
+    var(--surface);
+  border-color: rgba(214, 183, 124, 0.12);
+  box-shadow:
+    0 26px 64px rgba(0, 0, 0, 0.42),
+    0 12px 26px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.dark .card-elevated {
+  background:
+    radial-gradient(circle at top left, rgba(210, 178, 122, 0.14), transparent 36%),
+    linear-gradient(180deg, rgba(20, 16, 12, 0.96), rgba(10, 8, 6, 0.92)),
+    var(--surface-strong);
+  border-color: rgba(214, 183, 124, 0.14);
+  box-shadow:
+    0 36px 92px rgba(0, 0, 0, 0.5),
+    0 14px 30px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.eyebrow {
+  color: var(--brand);
+  @apply text-[11px] font-semibold uppercase tracking-[0.28em];
+}
+
+.editorial-copy {
+  color: var(--muted-ink);
+  @apply text-sm leading-7 sm:text-[15px];
 }
 
 .animate-pulse {
@@ -49,4 +163,83 @@ body {
   100% {
     transform: translateX(100%);
   }
+}
+
+.rich-editor .ProseMirror {
+  @apply min-h-[inherit];
+}
+
+.rich-editor .ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--muted-ink);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.rich-editor .ProseMirror > * + *,
+.rich-content > * + * {
+  margin-top: 1rem;
+}
+
+.rich-editor .ProseMirror h2,
+.rich-content h2 {
+  @apply text-2xl font-semibold leading-tight text-slate-950 dark:text-white;
+}
+
+.rich-editor .ProseMirror h3,
+.rich-content h3 {
+  @apply text-xl font-semibold leading-tight text-slate-950 dark:text-white;
+}
+
+.rich-editor .ProseMirror p,
+.rich-content p {
+  @apply leading-8;
+}
+
+.rich-editor .ProseMirror ul,
+.rich-editor .ProseMirror ol,
+.rich-content ul,
+.rich-content ol {
+  @apply ml-5 space-y-2;
+}
+
+.rich-editor .ProseMirror ul,
+.rich-content ul {
+  list-style: disc;
+}
+
+.rich-editor .ProseMirror ol,
+.rich-content ol {
+  list-style: decimal;
+}
+
+.rich-editor .ProseMirror blockquote,
+.rich-content blockquote {
+  @apply rounded-[24px] border-l-4 border-amber-500/70 bg-amber-50/80 px-5 py-4 italic text-slate-700 dark:border-amber-300/60 dark:bg-amber-500/10 dark:text-slate-200;
+}
+
+.rich-editor .ProseMirror pre,
+.rich-content pre {
+  @apply overflow-x-auto rounded-[24px] bg-slate-950 px-5 py-4 text-sm text-slate-100;
+}
+
+.rich-editor .ProseMirror code,
+.rich-content code {
+  @apply rounded-md bg-slate-100 px-1.5 py-0.5 text-[0.9em] text-slate-900 dark:bg-slate-800 dark:text-slate-100;
+}
+
+.rich-editor .ProseMirror pre code,
+.rich-content pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+
+.rich-editor .ProseMirror a,
+.rich-content a {
+  @apply font-medium text-amber-700 underline decoration-amber-400/60 underline-offset-4 dark:text-amber-300;
+}
+
+.rich-editor .ProseMirror hr,
+.rich-content hr {
+  @apply border-slate-200 dark:border-slate-800;
 }

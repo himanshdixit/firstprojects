@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { backendRequest, authHeadersFromToken } from '@/lib/serverApi';
+import { getRequestAuthToken } from '@/lib/auth/requestAuth';
 
-const TOKEN_COOKIE = 'auth_token';
-
-export async function GET(_request, { params }) {
-  const token = cookies().get(TOKEN_COOKIE)?.value;
+export async function GET(request, { params }) {
+  const token = getRequestAuthToken(request);
   const { response, data } = await backendRequest(`/posts/${params.id}`, {
     method: 'GET',
     headers: {

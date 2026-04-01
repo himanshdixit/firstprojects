@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { backendRequest } from '@/lib/serverApi';
-
-const TOKEN_COOKIE = 'auth_token';
-const ROLE_COOKIE = 'auth_role';
+import { setSessionCookies } from '@/lib/auth/cookies';
 
 export async function POST(request) {
   const contentType = request.headers.get('content-type') || '';
@@ -33,21 +31,7 @@ export async function POST(request) {
     },
   });
 
-  res.cookies.set(TOKEN_COOKIE, accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 15,
-  });
-
-  res.cookies.set(ROLE_COOKIE, role, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 60 * 15,
-  });
+  setSessionCookies(res, accessToken, role);
 
   return res;
 }

@@ -1,11 +1,9 @@
-﻿import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 import { backendRequest, authHeadersFromToken } from '@/lib/serverApi';
-
-const TOKEN_COOKIE = 'auth_token';
+import { getRequestAuthToken } from '@/lib/auth/requestAuth';
 
 export async function PATCH(request, { params }) {
-  const token = cookies().get(TOKEN_COOKIE)?.value;
+  const token = getRequestAuthToken(request);
   if (!token) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
@@ -30,8 +28,8 @@ export async function PATCH(request, { params }) {
   return NextResponse.json(data, { status: response.status });
 }
 
-export async function DELETE(_request, { params }) {
-  const token = cookies().get(TOKEN_COOKIE)?.value;
+export async function DELETE(request, { params }) {
+  const token = getRequestAuthToken(request);
   if (!token) {
     return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
   }
