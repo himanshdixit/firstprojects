@@ -1,17 +1,13 @@
+const AppError = require('../utils/AppError');
+
 exports.requireRole = (...allowedRoles) => {
-  return (req, res, next) => {
+  return (req, _res, next) => {
     if (!req.user) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      return next(new AppError('Authentication required', 401));
     }
 
     if (!allowedRoles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: 'Forbidden: insufficient role',
-      });
+      return next(new AppError('Forbidden: insufficient role', 403));
     }
 
     return next();

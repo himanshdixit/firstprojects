@@ -1,28 +1,9 @@
 const authService = require('../services/auth.service');
 const userService = require('../services/user.service');
 const catchAsync = require('../utils/catchAsync');
+const { sendSuccess } = require('../utils/apiResponse');
 const { getUploadedFileUrl } = require('../middlewares/upload.middleware');
-
-const REFRESH_COOKIE_NAME = 'refreshToken';
-
-function setRefreshCookie(res, refreshToken) {
-  if (!refreshToken) return;
-
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-}
-
-function clearRefreshCookie(res) {
-  res.clearCookie(REFRESH_COOKIE_NAME, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  });
-}
+const { REFRESH_COOKIE_NAME, setAuthCookies, clearAuthCookies } = require('../utils/authCookies');
 
 exports.register = catchAsync(async (req, res) => {
   const payload = { ...req.body };
@@ -31,10 +12,10 @@ exports.register = catchAsync(async (req, res) => {
   }
 
   const { user, accessToken, refreshToken } = await authService.register(payload);
-  setRefreshCookie(res, refreshToken);
+  setAuthCookies(res, accessToken, refreshToken);
 
-  return res.status(201).json({
-    success: true,
+  return sendSuccess(res, {
+    statusCode: 201,
     message: 'User registered successfully',
     data: {
       user: authService.getPublicUser(user),
@@ -46,10 +27,9 @@ exports.register = catchAsync(async (req, res) => {
 
 exports.login = catchAsync(async (req, res) => {
   const { user, accessToken, refreshToken } = await authService.login(req.body);
-  setRefreshCookie(res, refreshToken);
+  setAuthCookies(res, accessToken, refreshToken);
 
-  return res.status(200).json({
-    success: true,
+  return sendSuccess(res, {
     message: 'Login successful',
     data: {
       user: authService.getPublicUser(user),
@@ -65,10 +45,9 @@ exports.refresh = catchAsync(async (req, res) => {
   const token = tokenFromCookie || tokenFromBody;
 
   const { accessToken, refreshToken } = await authService.refreshAccessToken(token);
-  setRefreshCookie(res, refreshToken);
+  setAuthCookies(res, accessToken, refreshToken);
 
-  return res.status(200).json({
-    success: true,
+  return sendSuccess(res, {
     message: 'Token refreshed successfully',
     data: {
       accessToken,
@@ -78,14 +57,13 @@ exports.refresh = catchAsync(async (req, res) => {
 });
 
 exports.logout = catchAsync(async (_req, res) => {
-  clearRefreshCookie(res);
-  return res.status(200).json({ success: true, message: 'Logout successful' });
+  clearAuthCookies(res);
+  return sendSuccess(res, { message: 'Logout successful' });
 });
 
 exports.getProfile = catchAsync(async (req, res) => {
   const user = await userService.getProfile(req.user.id);
-  return res.status(200).json({
-    success: true,
+  return sendSuccess(res, {
     data: {
       user: authService.getPublicUser(user),
     },
@@ -100,8 +78,7 @@ exports.updateProfile = catchAsync(async (req, res) => {
 
   const user = await userService.updateProfile(req.user.id, payload);
 
-  return res.status(200).json({
-    success: true,
+  return sendSuccess(res, {
     message: 'Profile updated successfully',
     data: {
       user: authService.getPublicUser(user),

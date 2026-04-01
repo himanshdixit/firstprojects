@@ -1,10 +1,11 @@
 const jwt = require('jsonwebtoken');
+const appConfig = require('../config/app.config');
 
-const ACCESS_TOKEN_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
-const REFRESH_TOKEN_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
+const ACCESS_TOKEN_EXPIRES_IN = appConfig.jwt.accessExpiresIn;
+const REFRESH_TOKEN_EXPIRES_IN = appConfig.jwt.refreshExpiresIn;
 
 function getJwtSecret() {
-  const secret = process.env.JWT_SECRET;
+  const secret = appConfig.jwt.secret;
   if (!secret) {
     throw new Error('Missing JWT_SECRET');
   }
@@ -12,7 +13,7 @@ function getJwtSecret() {
 }
 
 function getRefreshSecret() {
-  return process.env.JWT_REFRESH_SECRET;
+  return appConfig.jwt.refreshSecret;
 }
 
 function buildTokenPayload(user) {
@@ -20,6 +21,7 @@ function buildTokenPayload(user) {
     sub: user._id.toString(),
     role: user.role,
     email: user.email,
+    tokenType: 'access',
   };
 }
 

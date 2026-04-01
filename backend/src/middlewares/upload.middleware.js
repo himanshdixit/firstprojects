@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
 const AppError = require('../utils/AppError');
+const appConfig = require('../config/app.config');
 
 const UPLOAD_ROOT = path.join(__dirname, '..', '..', 'uploads');
 
@@ -46,9 +47,7 @@ function createImageUpload(subFolder) {
 }
 
 function getUploadedFileUrl(req, subFolder, fileName) {
-  const configuredBaseUrl = process.env.BACKEND_PUBLIC_URL
-    ? process.env.BACKEND_PUBLIC_URL.replace(/\/+$/, '')
-    : '';
+  const configuredBaseUrl = appConfig.backendPublicUrl;
   const requestBaseUrl = `${req.protocol}://${req.get('host')}`;
   const baseUrl = configuredBaseUrl || requestBaseUrl;
   return `${baseUrl}/uploads/${subFolder}/${fileName}`;

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
 const { signAccessToken, signRefreshToken, verifyRefreshToken } = require('../utils/jwt');
+const appConfig = require('../config/app.config');
 
 async function register(payload) {
   const { name, email, password, avatar } = payload;
@@ -53,7 +54,7 @@ async function login(payload) {
 }
 
 async function refreshAccessToken(refreshToken) {
-  if (!process.env.JWT_REFRESH_SECRET) {
+  if (!appConfig.jwt.refreshSecret) {
     throw new AppError('Refresh token flow is disabled', 400);
   }
 

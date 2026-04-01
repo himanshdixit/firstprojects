@@ -1,4 +1,6 @@
+const AppError = require('../utils/AppError');
 const { verifyAccessToken } = require('../utils/jwt');
+const { ACCESS_COOKIE_NAME } = require('../utils/authCookies');
 
 function extractBearerToken(authorizationHeader) {
   if (!authorizationHeader) return null;
@@ -9,46 +11,59 @@ function extractBearerToken(authorizationHeader) {
   return parts[1];
 }
 
+function extractToken(req) {
+  const bearerToken = extractBearerToken(req.headers.authorization);
+  if (bearerToken) {
+    return bearerToken;
+  }
+
+  if (req.cookies && req.cookies[ACCESS_COOKIE_NAME]) {
+    return req.cookies[ACCESS_COOKIE_NAME];
+  }
+
+  return null;
+}
+
+function attachUser(req, decoded) {
+  req.user = {
+    id: decoded.sub,
+    role: decoded.role,
+    email: decoded.email,
+  };
+}
+
 exports.requireAuth = (req, res, next) => {
   try {
-    const token = extractBearerToken(req.headers.authorization);
+    const token = extractToken(req);
 
     if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      return next(new AppError('Authentication required', 401));
     }
 
     const decoded = verifyAccessToken(token);
-    req.user = {
-      id: decoded.sub,
-      role: decoded.role,
-      email: decoded.email,
-    };
+    if (decoded.tokenType && decoded.tokenType !== 'access') {
+      throw new Error('Invalid token type');
+    }
+    attachUser(req, decoded);
 
     return next();
-  } catch (_error) {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid or expired token',
-    });
+  } catch (error) {
+    return next(new AppError('Invalid or expired token', 401));
   }
 };
 
 exports.optionalAuth = (req, _res, next) => {
   try {
-    const token = extractBearerToken(req.headers.authorization);
+    const token = extractToken(req);
     if (!token) {
       return next();
     }
 
     const decoded = verifyAccessToken(token);
-    req.user = {
-      id: decoded.sub,
-      role: decoded.role,
-      email: decoded.email,
-    };
+    if (decoded.tokenType && decoded.tokenType !== 'access') {
+      throw new Error('Invalid token type');
+    }
+    attachUser(req, decoded);
 
     return next();
   } catch (_error) {

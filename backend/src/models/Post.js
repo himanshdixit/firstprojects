@@ -32,6 +32,14 @@ const postSchema = new Schema(
       default: '',
       maxlength: [500, 'Cover image URL is too long'],
     },
+    category: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: 'general',
+      maxlength: [60, 'Category must be at most 60 characters'],
+      index: true,
+    },
     author: {
       type: Schema.Types.ObjectId,
       ref: 'User',
@@ -60,6 +68,15 @@ const postSchema = new Schema(
         return [...new Set(cleaned)];
       },
     },
+    likes: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -71,6 +88,8 @@ postSchema.index({ title: 'text', content: 'text' });
 postSchema.index({ status: 1, createdAt: -1 });
 postSchema.index({ author: 1, createdAt: -1 });
 postSchema.index({ tags: 1 });
+postSchema.index({ category: 1, createdAt: -1 });
+postSchema.index({ likes: 1 });
 
 // Example document:
 // {

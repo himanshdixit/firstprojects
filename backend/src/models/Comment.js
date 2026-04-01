@@ -16,12 +16,23 @@ const commentSchema = new Schema(
       required: [true, 'userId is required'],
       index: true,
     },
+    parentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Comment',
+      default: null,
+      index: true,
+    },
     content: {
       type: String,
       required: [true, 'Comment content is required'],
       trim: true,
       minlength: [1, 'Comment cannot be empty'],
       maxlength: [5000, 'Comment is too long'],
+    },
+    likes: {
+      type: [Schema.Types.ObjectId],
+      ref: 'User',
+      default: [],
     },
   },
   {
@@ -32,6 +43,7 @@ const commentSchema = new Schema(
 
 commentSchema.index({ postId: 1, createdAt: -1 });
 commentSchema.index({ userId: 1, createdAt: -1 });
+commentSchema.index({ parentId: 1, createdAt: 1 });
 
 // Example document:
 // {

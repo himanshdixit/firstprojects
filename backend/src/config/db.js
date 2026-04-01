@@ -1,12 +1,14 @@
 const mongoose = require('mongoose');
+const appConfig = require('./app.config');
 
 async function connectDB() {
-  const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/Codex_test_db';
-  await mongoose.connect(uri, {
-    dbName: 'Codex_test_db',
+  mongoose.set('strictQuery', true);
+
+  await mongoose.connect(appConfig.mongoUri, {
+    dbName: appConfig.mongoDbName,
   });
   // eslint-disable-next-line no-console
-  console.log('MongoDB connected');
+  console.log(`MongoDB connected: ${appConfig.mongoDbName}`);
 }
 
 module.exports = connectDB;

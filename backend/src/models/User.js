@@ -39,6 +39,15 @@ const userSchema = new Schema(
       default: '',
       maxlength: [500, 'Avatar URL is too long'],
     },
+    bookmarks: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: 'Post',
+        },
+      ],
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -47,6 +56,7 @@ const userSchema = new Schema(
 );
 
 userSchema.index({ createdAt: -1 });
+userSchema.index({ bookmarks: 1 });
 
 userSchema.pre('save', async function hashPassword(next) {
   if (!this.isModified('password')) {
